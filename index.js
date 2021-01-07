@@ -1,9 +1,7 @@
 const fs = require('fs-extra');
 const execSync = require('child_process').execSync;
 const invariant = require('invariant');
-
-const BINARY_PATH =
-  '/Applications/Sketch.app/Contents/Resources/sketchtool/bin/sketchtool';
+const BINARY_PATH = process.cwd() + '/Sketch.app/Contents/MacOS/sketchtool';
 
 const ALLOWED_LIST_TYPES = [
   'artboards',
@@ -18,7 +16,7 @@ const ALLOWED_LIST_TYPES = [
  * @param  {string} string
  * @return {string}
  */
-function escape (string) {
+function escape(string) {
   return string
     .replace(/ /g, '\\ ')
     .replace(/\n/g, '')
@@ -31,14 +29,14 @@ function escape (string) {
  * @param  {string} command
  * @return {string}
  */
-function exec (command) {
+function exec(command) {
   return execSync(command).toString();
 }
 /**
  * Check if binary exists at given path
  * @return {Boolean}
  */
-function check () {
+function check() {
   return !!fs.existsSync(BINARY_PATH);
 }
 
@@ -47,7 +45,7 @@ function check () {
  * @param  {string} command
  * @return {string}
  */
-function sketchtoolExec (command) {
+function sketchtoolExec(command) {
   return exec(`${BINARY_PATH} ${command}`);
 }
 
@@ -60,7 +58,7 @@ function sketchtoolExec (command) {
  * Receive the currently installed Sketch version
  * @return {string} [description]
  */
-function version () {
+function version() {
   return sketchtoolExec('--version');
 }
 
@@ -68,7 +66,7 @@ function version () {
  * Receive plugin folder path from current Sketch installation
  * @return {string}
  */
-function pluginFolder () {
+function pluginFolder() {
   const path = sketchtoolExec('show plugins');
   invariant(path, 'Plugin folder not found!');
   invariant(fs.existsSync(path), `Plugin folder does not exist at ${path}!`);
@@ -81,7 +79,7 @@ function pluginFolder () {
  * @param  {string} identifier
  * @param  {Object} options
  */
-function runPluginWithIdentifier (pluginName, identifier, options = {}) {
+function runPluginWithIdentifier(pluginName, identifier, options = {}) {
   const pluginFolderPath = options.dir || pluginFolder();
 
   // Append `.sketchplugin` if not passed in with the plugin name
@@ -111,7 +109,7 @@ function runPluginWithIdentifier (pluginName, identifier, options = {}) {
  * @param  {string} filePath
  * @return {Object}
  */
-function dump (filePath) {
+function dump(filePath) {
   return JSON.parse(sketchtoolExec(`dump ${escape(filePath)}`));
 }
 
@@ -121,7 +119,7 @@ function dump (filePath) {
  * @param  {string} filePath
  * @return {Object}
  */
-function list (type, filePath) {
+function list(type, filePath) {
   invariant(
     ALLOWED_LIST_TYPES.includes(type),
     `Type '${type}' is not supported by sketchtool`
